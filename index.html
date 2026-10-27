@@ -37,7 +37,7 @@ const totalHeight = 1000;
 const totalWidth = 1400;
 
 const HEADERS = ['Alleys Filthy', 'Defective Drainage', 'Manure Heaps'];
-const COLORS = ["#00a1ab", "#7fd1ae", "#8b8bd1"];
+const COLORS = ["#00a1ab", "#7fd1ae", "#8b8bd1", "#DDA0DD"];
 
 	
 const parseD = (value, header) => {
@@ -195,6 +195,26 @@ const legendx = 515
 		.style("font-weight", "normal")
 
 
+//fourth legend item
+	svg.append("circle")
+		.attr("cx", legendx)
+		.attr("cy", legendy+60) 
+		.attr("r", 7)
+		.style("fill", COLORS[3])
+	
+	const legendtext3 = svg.append("text")
+		.attr("x", legendx+20)
+		.attr("y", legendy+65) 
+		.style("fill", COLORS[3])
+		.text("Privy Wells ")
+		.style("font-weight", "normal")
+		.attr("text-anchor", "left")
+		.style("alignment-baseline", "middle")
+		
+	legendtext3.append("tspan")
+		.text("Foul")	
+		.style("font-weight", "bold")
+		.attr("class", "mouseover")	
 //load in snippet data
 const fnewsdata = await d3.text("filthydata.txt");
 const fdatalines = fnewsdata.split(/\r?\n/);
