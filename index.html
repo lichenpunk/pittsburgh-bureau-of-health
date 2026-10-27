@@ -86,7 +86,7 @@ svg.append("foreignObject")
   .attr("x", 200)
   .attr("y", 90)
   .attr("width", 860)   // Strict width limits forcing text to wrap
-  .attr("height", 200)
+  .attr("height", 247)
   .append("xhtml:div")  
   .style("font", "14px 'Helvetica Neue'")
   .style("padding", "8px")
@@ -97,12 +97,16 @@ svg.append("foreignObject")
   connection to any of the original meanings that existed around the records behind the data. This is a small experiment, inspired by the <a
   href="https://civic-switchboard.github.io/">Civic Switchboard Project</a>, to situate some historical data, albeit in a 
   fairly disjointed fashion. The data comes from <a href="https://historicpittsburgh.org/collection/department-public-health">scanned annual reports</a> of the Pittsburgh Bureau of Health (later Department of Public Health)
-  made available by <a href="https://historicpittsburgh.org">Historic Pittsburgh</a> through the University of Pittsburgh Library System. 
+  made available by <a href="https://historicpittsburgh.org">Historic Pittsburgh</a> through the University of Pittsburgh Library System. I manually entered this data into a csv file from the scanned report.
   <br><br>
   I was struck by some of the words in the column titles, which seemed, to my eyes, different from the language you might find in a (21st century) public health report. 
-  Bolded words can be clicked on, will bring up several quotes from newspapers within a two year span of the year of the record. The newspaper snippets, containing the 
+  Bolded words can be clicked on, will bring up several quotes from newspapers within a three year span of the year of the record. The newspaper snippets, containing the 
   clicked on word, were gathered using the Library of Congress's API to search the Chroncling America program, cataloguing newspapers
-  produced through the National Digital Newspaper Program, a partnership between the National Endowment for the Humanities and the Library of Congress.
+  produced through the National Digital Newspaper Program, a partnership between the National Endowment for the Humanities and the Library of Congress. 
+  They were then stored in a json file and processed. Due to accuracy of OCR 
+  and the diversity of sources, some of the snippets were a bit nonsensical and garbled. I did some manual processing of them, but they may not all make sense.
+  I am working on displaying metadata about the news snippets. Also figuring more out about the collection, as some of the snippets seem like they 
+  might be from something other than a newspaper. 
   `)
   
 // Add the x-axis.
@@ -127,16 +131,18 @@ HEADERS.forEach((header, i) => {
 		  .y1(function(d) { return y(d.values[header]) })
 		  )
 })
+const legendy = 352;
+const legendx = 515
 //first legend item
 	svg.append("circle")
-		.attr("cx", 480)
-		.attr("cy", 295) 
+		.attr("cx", legendx)
+		.attr("cy", legendy) 
 		.attr("r", 7)
 		.style("fill", COLORS[0])
 	
 	const legendtext = svg.append("text")
-		.attr("x", 500)
-		.attr("y", 300) 
+		.attr("x", legendx+20)
+		.attr("y", legendy+5) 
 		.style("fill", COLORS[1])
 		.text("Alleys ")
 		.attr("text-anchor", "left")
@@ -150,14 +156,14 @@ HEADERS.forEach((header, i) => {
 		
 //second legend item
 		svg.append("circle")
-		.attr("cx", 480)
-		.attr("cy", 315) 
+		.attr("cx", legendx)
+		.attr("cy", legendy+20) 
 		.attr("r", 7)
 		.style("fill", COLORS[1])
 	
 	const legendtext1 = svg.append("text")
-		.attr("x", 500)
-		.attr("y", 320) 
+		.attr("x", legendx+20)
+		.attr("y", legendy+25) 
 		.style("fill", COLORS[1])
 		.text("Defective ")
 		.attr("text-anchor", "left")
@@ -168,14 +174,14 @@ HEADERS.forEach((header, i) => {
 
 //third legend item
 	svg.append("circle")
-		.attr("cx", 480)
-		.attr("cy", 335) 
+		.attr("cx", legendx)
+		.attr("cy", legendy+40) 
 		.attr("r", 7)
 		.style("fill", COLORS[2])
 	
 	const legendtext2 = svg.append("text")
-		.attr("x", 500)
-		.attr("y", 340) 
+		.attr("x", legendx+20)
+		.attr("y", legendy+45) 
 		.style("fill", COLORS[2])
 		.text("Manure ")
 		.attr("id", "manure")
@@ -190,11 +196,19 @@ HEADERS.forEach((header, i) => {
 
 
 //load in snippet data
-const fnewsdata = await d3.text("filthydata1.txt ");
+const fnewsdata = await d3.text("filthydata.txt");
 const fdatalines = fnewsdata.split(/\r?\n/);
+//Filter out snippets less than 1 long (don't know why those are remaining in there)
 const fdatalines1 = fdatalines.filter(str => str.length > 1);
 
+//Randomly sort array of snippets
 const fscrambleddata = fdatalines1.sort(() => Math.random() - 0.5);
+
+const mnewsdata = await d3.text("manure.txt");
+const mdatalines = mnewsdata.split(/\r?\n/);
+const mdatalines1 = mdatalines.filter(str => str.length > 1);
+
+const mscrambleddata = mdatalines1.sort(() => Math.random() - 0.5);
 
 //Create empty boxes for news snippets
 for (let i = 0; i < 3; i++) {
@@ -207,23 +221,34 @@ for (let i = 0; i < 3; i++) {
 	  .attr("class", "news")
 	  .style("display", "none")
 	  .style("font", "13px 'Helvetica Neue'")
-	  .style("padding", "20px")
+	  .style("padding", "15px")
 	  //.style("background", "white")
 	  .style("border", "1px solid black")
 	  .style("border-radius", "8px")
-	  .html(fscrambleddata[i])
+	  //.html(fscrambleddata[i])
 } 
 
 container.append(svg.node());
 document.getElementById("filthy").addEventListener("click", () => {
 	const boxes = document.getElementsByClassName("news");
+	let i=0;
 	for (const box of boxes) {
-      console.log(box);
-	  box.style.setProperty("display", "block");
+		box.innerHTML = fscrambleddata[i]
+		box.style.setProperty("display", "block");
+		i++;
     }
 })
 
-document.getElementById('myElement');
+document.getElementById('manure').addEventListener("click", () => {
+	const boxes = document.getElementsByClassName("news");
+	let i=0;
+	for (const box of boxes) {
+	console.log("manure");
+	  box.innerHTML = mscrambleddata[i];
+	  box.style.setProperty("display", "block");
+	  i++;
+    }
+})
 
 const mouseovers = document.getElementsByClassName("mouseover");
 // Change cursor to a pointer on mouse hover
