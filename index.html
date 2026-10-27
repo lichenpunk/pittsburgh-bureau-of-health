@@ -47,7 +47,7 @@ const parseD = (value, header) => {
 // const data = await d3.csv("testdata.csv", parseD);
 
 //Load in csv of data from Bureau of Health inspector reports
-const data = await d3.csv("bureauhealthdata.csv", 
+const data = await d3.csv("data/bureauhealthdata.csv", 
 	d => {
 		const valueObject = {};
 		HEADERS.forEach(header => {
@@ -235,8 +235,8 @@ function processNews(newsdata) {
 }
 
 //load in snippet data
-const fnewsdata = await d3.text("filthydata.txt");
-const mnewsdata = await d3.text("manuredata.txt");
+const fnewsdata = await d3.text("data/filthydata.txt");
+const mnewsdata = await d3.text("data/manuredata.txt");
 
 const fscrambleddata = processNews(fnewsdata);
 const mscrambleddata = processNews(mnewsdata);
